@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2f7d6d">
+  <title>Calorie Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <h1 id="view-title">Today</h1>
+  </header>
+
+  <main>
+    <!-- ============ TODAY ============ -->
+    <section id="view-today" class="view">
+      <div class="date-nav">
+        <button class="icon-btn" id="day-prev" aria-label="Previous day">‹</button>
+        <button class="date-label" id="day-label">Today</button>
+        <button class="icon-btn" id="day-next" aria-label="Next day">›</button>
+      </div>
+
+      <div class="card summary">
+        <div class="summary-row">
+          <div><span class="big" id="sum-eaten">0</span><small>eaten</small></div>
+          <div class="op">−</div>
+          <div><span class="big" id="sum-burned">0</span><small>exercise</small></div>
+          <div class="op">=</div>
+          <div><span class="big" id="sum-net">0</span><small>net kcal</small></div>
+        </div>
+        <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+        <p class="progress-text" id="progress-text"></p>
+        <p class="protein-text" id="protein-text"></p>
+        <p class="notice" id="day-notice" hidden></p>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="add-food">+ Food</button>
+        <button class="btn primary" id="add-activity">+ Exercise</button>
+        <button class="btn" id="add-weight">+ Weight</button>
+      </div>
+
+      <div id="day-entries"></div>
+    </section>
+
+    <!-- ============ HISTORY ============ -->
+    <section id="view-history" class="view" hidden>
+      <div class="segmented" id="range-toggle">
+        <button data-range="7" class="active">7 days</button>
+        <button data-range="30">30 days</button>
+      </div>
+
+      <div class="card">
+        <h2>Net calories per day</h2>
+        <div class="chart-box"><canvas id="chart-kcal"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>Weight</h2>
+        <div class="chart-box"><canvas id="chart-weight"></canvas></div>
+        <p class="muted" id="weight-goal-text"></p>
+        <p class="notice" id="weight-notice" hidden></p>
+      </div>
+
+      <div class="card">
+        <h2>Weekly overview</h2>
+        <div id="weekly-table"></div>
+      </div>
+
+      <div class="card">
+        <h2>Weight log</h2>
+        <ul class="list" id="weight-list"></ul>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section id="view-settings" class="view" hidden>
+      <p class="notice" id="welcome" hidden>Welcome! 👋 Enter your details first, so the app can calculate your daily goal. They stay on this device only.</p>
+      <form class="card" id="settings-form">
+        <h2>About you</h2>
+        <div class="grid2">
+          <label>Sex
+            <select name="sex">
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+            </select>
+          </label>
+          <label>Age
+            <input name="age" type="number" inputmode="numeric" min="14" max="100" required>
+          </label>
+          <label>Height (cm)
+            <input name="height" type="number" inputmode="decimal" min="100" max="230" step="0.5" required>
+          </label>
+          <label>Current weight (kg)
+            <input name="weight" type="number" inputmode="decimal" min="30" max="250" step="0.1" required>
+          </label>
+          <label>Goal weight (kg)
+            <input name="goalWeight" type="number" inputmode="decimal" min="30" max="250" step="0.1">
+          </label>
+        </div>
+
+        <label>Everyday activity <small>(not counting workouts — you log those separately)</small>
+          <select name="activity">
+            <option value="1.2">Mostly sitting (office, studying)</option>
+            <option value="1.375">Lightly active (some walking, on your feet sometimes)</option>
+            <option value="1.55">Active (on your feet most of the day)</option>
+            <option value="1.725">Very active (physical job)</option>
+          </select>
+        </label>
+
+        <h2>Daily goal</h2>
+        <label>Pace
+          <select name="deficit">
+            <option value="250">Gentle (≈ 0.25 kg per week)</option>
+            <option value="400">Moderate (≈ 0.4 kg per week)</option>
+            <option value="500">Steady (≈ 0.5 kg per week)</option>
+            <option value="0">Maintain weight</option>
+          </select>
+        </label>
+        <label class="check">
+          <input type="checkbox" name="customGoalOn"> Set my own daily goal
+        </label>
+        <label id="custom-goal-wrap" hidden>Own goal (kcal)
+          <input name="customGoal" type="number" inputmode="numeric" min="0" max="6000">
+        </label>
+
+        <div class="calc-box" id="calc-box"></div>
+        <p class="notice" id="goal-notice" hidden></p>
+
+        <button class="btn primary wide" type="submit">Save</button>
+        <p class="muted center" id="settings-saved" hidden>Saved ✓</p>
+      </form>
+
+      <div class="card">
+        <h2>Favourites</h2>
+        <ul class="list" id="fav-list"></ul>
+      </div>
+
+      <div class="card">
+        <h2>Your data</h2>
+        <p class="muted">Everything is stored only in this browser on this device. Make a backup now and then, or to move your data to another device.</p>
+        <div class="actions">
+          <button class="btn" id="export-btn">Export backup</button>
+          <button class="btn" id="import-btn">Import backup</button>
+          <input type="file" id="import-file" accept="application/json" hidden>
+        </div>
+        <button class="btn danger wide" id="reset-btn">Delete all data</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button data-view="today" class="active"><span>🍽️</span>Today</button>
+    <button data-view="history"><span>📈</span>History</button>
+    <button data-view="settings"><span>⚙️</span>Settings</button>
+  </nav>
+
+  <!-- ============ DIALOG: FOOD ============ -->
+  <dialog id="food-dialog">
+    <form method="dialog" id="food-form">
+      <h2 id="food-dialog-title">Add food</h2>
+
+      <div class="chips" id="fav-chips"></div>
+
+      <label>Meal
+        <select name="meal">
+          <option value="breakfast">Breakfast</option>
+          <option value="lunch">Lunch</option>
+          <option value="dinner">Dinner</option>
+          <option value="snack">Snack</option>
+        </select>
+      </label>
+      <label>What did you eat?
+        <textarea name="text" rows="2" placeholder="e.g. chicken rice with egg, 1 kopi" required></textarea>
+      </label>
+
+      <div class="estimate" id="food-estimate"></div>
+
+      <div class="grid2">
+        <label>Calories (kcal)
+          <input name="kcal" type="number" inputmode="numeric" min="0" max="5000" required>
+        </label>
+        <label>Protein (g)
+          <input name="protein" type="number" inputmode="numeric" min="0" max="300">
+        </label>
+      </div>
+      <label class="check"><input type="checkbox" name="favorite"> Save as favourite</label>
+
+      <div class="dialog-buttons">
+        <button class="btn" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ============ DIALOG: ACTIVITY ============ -->
+  <dialog id="activity-dialog">
+    <form method="dialog" id="activity-form">
+      <h2 id="activity-dialog-title">Add exercise</h2>
+      <label>Activity
+        <select name="activity" id="activity-select"></select>
+      </label>
+      <label>Duration (minutes)
+        <input name="minutes" type="number" inputmode="numeric" min="1" max="600" required>
+      </label>
+      <fieldset class="segmented" id="intensity-group">
+        <label><input type="radio" name="intensity" value="light"> Light</label>
+        <label><input type="radio" name="intensity" value="moderate" checked> Moderate</label>
+        <label><input type="radio" name="intensity" value="intense"> Intense</label>
+      </fieldset>
+      <p class="estimate" id="activity-estimate"></p>
+      <label>Calories burned (kcal) <small>— change it to your smartwatch value if you like</small>
+        <input name="kcal" type="number" inputmode="numeric" min="0" max="5000" required>
+      </label>
+      <div class="dialog-buttons">
+        <button class="btn" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ============ DIALOG: WEIGHT ============ -->
+  <dialog id="weight-dialog">
+    <form method="dialog" id="weight-form">
+      <h2>Log weight</h2>
+      <label>Weight (kg)
+        <input name="kg" type="number" inputmode="decimal" min="30" max="250" step="0.1" required>
+      </label>
+      <p class="muted">Tip: weigh yourself in the morning, before breakfast. Day-to-day changes are mostly water — the trend over weeks is what counts.</p>
+      <div class="dialog-buttons">
+        <button class="btn" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Chart library (draws the diagrams) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <!-- Our own code. Order matters: later files use things from earlier ones. -->
+  <script src="js/foods.js"></script>
+  <script src="js/activities.js"></script>
+  <script src="js/calc.js"></script>
+  <script src="js/estimate.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

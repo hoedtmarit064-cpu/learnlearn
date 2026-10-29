@@ -52,6 +52,8 @@ Supabase would then also provide the small server for the Claude estimate.
 
 ## Steps
 
+**Status:** steps 1–6 are done (version 1). Data is stored in the browser for now.
+
 1. **Skeleton** – page, navigation (Today / History / Settings),
    mobile layout, enable GitHub Pages.
 2. **Settings** – weight, height, age, sex, activity level →
