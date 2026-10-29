@@ -21,7 +21,7 @@ const GRAM_UNITS = ["g", "gr", "gram", "grams", "gramm", "ml"];
 
 // Words for portions → ignored, the number in front counts
 const PORTION_UNITS = [
-  "x", "slice", "slices", "scheibe", "scheiben", "piece", "pieces", "pcs", "pc",
+  "x", "set", "sets", "slice", "slices", "scheibe", "scheiben", "piece", "pieces", "pcs", "pc",
   "stück", "stueck", "stk", "cup", "cups", "tasse", "tassen", "bowl", "bowls",
   "schüssel", "schale", "plate", "plates", "teller", "glass", "glasses", "glas",
   "gläser", "can", "cans", "dose", "bottle", "flasche", "tbsp", "el", "tsp", "tl",
@@ -80,15 +80,45 @@ function wordMatches(word, aliasWord) {
     (aliasWord.endsWith("y") && word === aliasWord.slice(0, -1) + "ies");
 }
 
+// Small typos are OK: "copi o kosung" → "kopi o kosong", "chiken rice".
+// One letter may differ per word. To avoid silly matches ("nice" → "rice"),
+// a single-word food needs 5+ letters; a longer name needs at least one
+// word spelled exactly.
+function editDistanceIsOne(a, b) {
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0, j = 0, edits = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++edits > 1) return false;
+    if (a.length > b.length) i++;        // extra letter in a
+    else if (a.length < b.length) j++;   // missing letter in a
+    else { i++; j++; }                   // different letter
+  }
+  return edits + (a.length - i) + (b.length - j) === 1;
+}
+
+function matchAlias(tokens, i, aliasTokens, allowTypos) {
+  const n = aliasTokens.length;
+  if (i + n > tokens.length) return false;
+  let exact = 0;
+  for (let k = 0; k < n; k++) {
+    const word = tokens[i + k], aliasWord = aliasTokens[k];
+    if (wordMatches(word, aliasWord)) { exact++; continue; }
+    const minLength = n === 1 ? 5 : 3;
+    const typoOk = allowTypos && !FILLER_WORDS.has(word) &&
+      word.length >= minLength && aliasWord.length >= minLength &&
+      editDistanceIsOne(word, aliasWord);
+    if (!typoOk) return false;
+  }
+  return n === 1 || exact > 0;
+}
+
 function aliasAt(tokens, i) {
-  for (const entry of ALIAS_INDEX) {
-    const n = entry.tokens.length;
-    if (i + n > tokens.length) continue;
-    let ok = true;
-    for (let k = 0; k < n; k++) {
-      if (!wordMatches(tokens[i + k], entry.tokens[k])) { ok = false; break; }
+  // First look for exact matches, then allow small typos
+  for (const allowTypos of [false, true]) {
+    for (const entry of ALIAS_INDEX) {
+      if (matchAlias(tokens, i, entry.tokens, allowTypos)) return entry;
     }
-    if (ok) return entry;
   }
   return null;
 }
