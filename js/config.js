@@ -9,4 +9,4 @@
 // ------------------------------------------------------------
 
 const SUPABASE_URL = "https://oezdvwujwkhgrlfvioxm.supabase.co";
-const SUPABASE_KEY = "";   // Supabase → Project Settings → API Keys → "Publishable key" (or "anon public")
+const SUPABASE_KEY = "sb_publishable_M5fFHcCIYpAOqVHYgFCfBw_hJWhDl4U";   // Supabase → Project Settings → API Keys → "Publishable key" (or "anon public")
