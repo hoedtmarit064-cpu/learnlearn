@@ -16,6 +16,7 @@ const $ = id => document.getElementById(id);
 let currentDate = todayKey();
 let historyRange = 7;
 let editingId = null;         // id of the entry being edited (null = new)
+let currentView = "today";
 
 // ---------- Date helpers ----------
 // Dates are stored as "YYYY-MM-DD" in local time.
@@ -62,6 +63,7 @@ function dayTotals(key) {
 // Navigation between the three views
 // ============================================================
 function showView(name) {
+  currentView = name;
   for (const v of ["today", "history", "settings"]) $(`view-${v}`).hidden = v !== name;
   document.querySelectorAll(".tabbar button").forEach(b =>
     b.classList.toggle("active", b.dataset.view === name));
@@ -430,6 +432,7 @@ function renderSettings() {
     form[key].value = s[key] ?? "";
   }
   form.customGoalOn.checked = !!s.customGoalOn;
+  if (s.setupDone) $("welcome").hidden = true;
   $("settings-saved").hidden = true;
   updateSettingsPreview();
 
@@ -505,6 +508,16 @@ function importBackup(file) {
 // ============================================================
 function init() {
   Store.load();
+
+  // Sync: when data arrives from another device, re-draw the screen
+  // (but not while a dialog is open or the settings form is being edited)
+  Sync.onRemoteChange = () => {
+    if (document.querySelector("dialog[open]")) return;
+    if (currentView === "today") renderToday();
+    if (currentView === "history") renderHistory();
+    if (currentView === "settings" && !$("settings-form").contains(document.activeElement)) renderSettings();
+  };
+  Sync.init();
 
   // Tabs
   document.querySelectorAll(".tabbar button").forEach(b =>
