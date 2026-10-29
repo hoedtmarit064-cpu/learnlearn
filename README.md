@@ -22,10 +22,18 @@ Plain HTML, CSS and JavaScript – no installation, no build step.
 
 ## Where is my data?
 
-Only in the browser of the device you use (localStorage). Nothing is sent
-anywhere and nothing personal is stored in this repository. Phone and laptop
-therefore have separate data for now – use **Settings → Export / Import backup**
-to move it. Online sync is planned as a next step.
+On your device (localStorage), so the app works offline. When you log in under
+**Settings → Sync**, every change is also saved to your private Supabase
+database, and all devices logged in with the same account show the same data.
+Nothing personal is stored in this repository.
+
+### Setting up sync (once)
+
+1. Supabase → **SQL Editor** → New query → paste `supabase/setup.sql` → **Run**.
+2. Supabase → **Authentication → URL Configuration** → set **Site URL** to
+   the app's address (e.g. `https://<username>.github.io/learnlearn/`).
+3. Put the project URL and the **publishable / anon** key into `js/config.js`
+   (both are public by design – never use the secret / service_role key).
 
 ## Files
 
@@ -37,7 +45,10 @@ to move it. Online sync is planned as a next step.
 | `js/activities.js` | sports and their MET values |
 | `js/calc.js` | formulas: BMR (Mifflin-St Jeor), exercise burn, goal checks |
 | `js/estimate.js` | turns free text like “2 slices bread with cheese” into calories |
-| `js/storage.js` | saving and loading data |
+| `js/storage.js` | saving and loading data on the device |
+| `js/sync.js` | syncing with Supabase (login, upload, download) |
+| `js/config.js` | Supabase address and public key |
+| `supabase/setup.sql` | database table + security rules for sync |
 | `js/charts.js` | the charts |
 | `js/app.js` | connects everything with the page |
 

@@ -53,6 +53,7 @@ small { color: var(--muted); font-weight: normal; }
 .center { text-align: center; }
 
 .topbar {
+  display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 5;
   background: var(--bg);
   padding: calc(12px + env(safe-area-inset-top)) 16px 8px;
@@ -202,3 +203,8 @@ th { color: var(--muted); font-weight: 600; border-top: none; }
 }
 .tabbar button span { display: block; font-size: 1.3rem; }
 .tabbar button.active { color: var(--accent); font-weight: 600; }
+
+/* ---------- Sync status in the top bar ---------- */
+.sync-badge { font-size: 0.8rem; color: var(--muted); }
+.sync-badge.ok { color: var(--accent); }
+.sync-badge.error { color: var(--warn); }

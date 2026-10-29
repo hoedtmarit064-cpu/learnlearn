@@ -61,6 +61,7 @@ food("Ramen", ["ramen"], "bowl", 550, 550, 22);
 
 // ---------- Singapore hawker: other ----------
 food("Kaya toast (2 slices)", ["kaya toast", "kaya butter toast"], "set", 70, 300, 5);
+food("Kaya toast set (toast + 2 soft-boiled eggs, drink extra)", ["kaya toast set", "kaya set", "toast set", "breakfast set"], "set", 180, 450, 18);
 food("Soft-boiled eggs (2)", ["soft boiled eggs", "half boiled eggs", "soft-boiled eggs"], "set", 110, 150, 13);
 food("Roti prata (plain)", ["prata", "roti prata", "plain prata", "kosong prata"], "piece", 80, 210, 4);
 food("Egg prata", ["egg prata", "prata telur"], "piece", 120, 280, 9);

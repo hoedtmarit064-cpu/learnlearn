@@ -52,7 +52,7 @@ Supabase would then also provide the small server for the Claude estimate.
 
 ## Steps
 
-**Status:** steps 1–6 are done (version 1). Data is stored in the browser for now.
+**Status:** steps 1–7 are done. Sync via Supabase (email + password login) is built.
 
 1. **Skeleton** – page, navigation (Today / History / Settings),
    mobile layout, enable GitHub Pages.

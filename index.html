@@ -14,6 +14,7 @@
 
   <header class="topbar">
     <h1 id="view-title">Today</h1>
+    <span class="sync-badge" id="sync-status"></span>
   </header>
 
   <main>
@@ -80,7 +81,9 @@
 
     <!-- ============ SETTINGS ============ -->
     <section id="view-settings" class="view" hidden>
-      <p class="notice" id="welcome" hidden>Welcome! 👋 Enter your details first, so the app can calculate your daily goal. They stay on this device only.</p>
+      <p class="notice" id="welcome" hidden>Welcome! 👋 Already using the app on another device? Log in below and your data appears. Otherwise enter your details, so the app can calculate your daily goal.</p>
+      <div class="card" id="sync-card"></div>
+
       <form class="card" id="settings-form">
         <h2>About you</h2>
         <div class="grid2">
@@ -143,7 +146,7 @@
 
       <div class="card">
         <h2>Your data</h2>
-        <p class="muted">Everything is stored only in this browser on this device. Make a backup now and then, or to move your data to another device.</p>
+        <p class="muted">Your data is stored on this device and – when you're logged in above – synced to your private online account. A backup file is an extra safety net.</p>
         <div class="actions">
           <button class="btn" id="export-btn">Export backup</button>
           <button class="btn" id="import-btn">Import backup</button>
@@ -239,8 +242,9 @@
     </form>
   </dialog>
 
-  <!-- Chart library (draws the diagrams) -->
+  <!-- Chart library (draws the diagrams) and Supabase (sync) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 
   <!-- Our own code. Order matters: later files use things from earlier ones. -->
   <script src="js/foods.js"></script>
@@ -248,6 +252,8 @@
   <script src="js/calc.js"></script>
   <script src="js/estimate.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/sync.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/app.js"></script>
 </body>
