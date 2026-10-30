@@ -248,3 +248,29 @@ food("Protein bar", ["protein bar", "proteinriegel"], "bar", 60, 200, 20);
 food("Muesli bar", ["muesli bar", "granola bar", "cereal bar", "müsliriegel"], "bar", 30, 120, 2);
 food("Popcorn", ["popcorn"], "cup", 10, 55, 1);
 food("Rice cake", ["rice cake", "reiswaffel"], "piece", 9, 35, 1);
+
+// ---------- Small extras (often measured in spoons) ----------
+food("Sugar", ["sugar", "zucker", "brown sugar"], "tsp", 4, 16, 0);
+food("Chia seeds", ["chia", "chia seeds", "chiasamen"], "tbsp", 12, 58, 2);
+food("Flaxseed", ["flaxseed", "flax seeds", "linseed", "leinsamen"], "tbsp", 10, 55, 2);
+food("Cinnamon", ["cinnamon", "zimt"], "tsp", 3, 6, 0);
+
+// ------------------------------------------------------------
+// Density: grams per millilitre, so "4 tbsp oats" can be weighed.
+// Foods not listed here count as 1 g per ml (like water, milk, yogurt).
+// ------------------------------------------------------------
+const DENSITY = {
+  "Oats": 0.35, "Muesli": 0.45, "Granola": 0.5, "Cereal": 0.15,
+  "White rice (cooked)": 0.8, "Brown rice (cooked)": 0.8, "Noodles (cooked)": 0.6,
+  "Pasta (cooked, plain)": 0.6, "Fried rice": 0.7,
+  "Nuts": 0.6, "Almonds": 0.6, "Chia seeds": 0.8, "Flaxseed": 0.65,
+  "Sugar": 0.85, "Cinnamon": 0.55, "Popcorn": 0.05,
+  "Honey": 1.4, "Jam": 1.3, "Kaya": 1.3, "Nutella": 1.25, "Peanut butter": 1.05,
+  "Butter": 0.95, "Olive oil": 0.92, "Salad dressing": 1.0,
+  "Cheese (slice)": 0.45, "Cheddar": 0.45, "Mozzarella": 0.45, "Feta": 0.6,
+  "Blueberries": 0.6, "Strawberries": 0.6, "Grapes": 0.65, "Fruit (mixed)": 0.6,
+  "Papaya": 0.6, "Pineapple": 0.7, "Salad (no dressing)": 0.2,
+  "Spinach (cooked)": 0.75, "Broccoli": 0.4, "Stir-fried vegetables": 0.5,
+  "Protein shake (with water)": 0.4, "Milo": 1.0,
+};
+for (const f of FOODS) if (DENSITY[f.name]) f.density = DENSITY[f.name];
