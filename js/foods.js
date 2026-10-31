@@ -274,3 +274,19 @@ const DENSITY = {
   "Protein shake (with water)": 0.4, "Milo": 1.0,
 };
 for (const f of FOODS) if (DENSITY[f.name]) f.density = DENSITY[f.name];
+
+// ---------- Bakery (Singapore bakeries, cafés) ----------
+// Listed after DENSITY on purpose: these are counted in pieces, not spoons.
+food("Ham & cheese pastry", ["ham and cheese pastry", "ham cheese pastry", "ham and cheese croissant", "ham cheese croissant", "ham and cheese puff", "ham and cheese bun", "ham cheese bun", "schinken käse croissant"], "piece", 110, 380, 14);
+food("Cheese pastry", ["cheese pastry", "cheese puff", "cheese danish", "käsestange", "cheese bun"], "piece", 80, 300, 8);
+food("Pastry", ["pastry", "pastries", "danish", "puff pastry", "gebäck", "plunder", "plundergebäck"], "piece", 80, 300, 5);
+food("Pain au chocolat", ["pain au chocolat", "chocolate croissant", "schoko croissant", "schokocroissant"], "piece", 70, 280, 5);
+food("Sausage bun", ["sausage bun", "sausage roll", "hotdog bun", "würstchen im schlafrock"], "piece", 90, 290, 10);
+food("Pork floss bun", ["pork floss bun", "floss bun", "chicken floss bun"], "piece", 80, 280, 9);
+food("Egg tart", ["egg tart", "portuguese egg tart", "pastel de nata"], "piece", 60, 200, 4);
+food("Kaya puff", ["kaya puff"], "piece", 60, 230, 3);
+food("Cinnamon roll", ["cinnamon roll", "cinnamon bun", "zimtschnecke"], "piece", 110, 420, 7);
+food("Pretzel", ["pretzel", "brezel", "breze", "laugenbrezel"], "piece", 90, 260, 7);
+food("Quiche", ["quiche"], "slice", 150, 400, 13);
+food("Banana bread", ["banana bread", "bananenbrot"], "slice", 80, 260, 4);
+food("Scone", ["scone", "scones"], "piece", 70, 250, 5);
