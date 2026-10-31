@@ -245,10 +245,14 @@ const Sync = {
 };
 
 function friendlyAuthError(e) {
-  const m = (e.message || "").toLowerCase();
+  const m = (e.message || String(e)).toLowerCase();
   if (m.includes("invalid login")) return "Email or password is wrong.";
-  if (m.includes("not confirmed")) return "Please confirm your email first (check your inbox).";
+  if (m.includes("not confirmed")) return "Please confirm your email first (check your inbox), or turn off “Confirm email” in Supabase.";
   if (m.includes("already registered")) return "This email already has an account – just log in.";
+  if (m.includes("rate limit") || m.includes("not authorized") || m.includes("sending") || m.includes("confirmation"))
+    return "Supabase couldn't send the confirmation email (" + e.message + "). Fix: Supabase → Authentication → Sign In / Providers → Email → turn off “Confirm email”, then try again.";
+  if (m.includes("failed to fetch") || m.includes("network"))
+    return "Can't reach the sync server. Check your internet connection (or turn off content blockers for this site) and try again.";
   if (m.includes("password")) return e.message;
   return "That didn't work: " + (e.message || e);
 }

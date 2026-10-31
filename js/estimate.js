@@ -16,18 +16,33 @@ const NUMBER_WORDS = {
   couple: 2, paar: 2,
 };
 
-// Words for amounts by weight/volume → we calculate with grams
-const GRAM_UNITS = ["g", "gr", "gram", "grams", "gramm", "ml"];
+// Measurement words → one standard unit name
+const UNITS = {};
+function units(name, words) { for (const w of words) UNITS[w] = name; }
+units("g", ["g", "gr", "gram", "grams", "gramm", "grammes"]);
+units("kg", ["kg", "kilo", "kilogram"]);
+units("ml", ["ml", "milliliter", "millilitre", "milliliters"]);
+units("l", ["l", "liter", "litre", "liters", "litres"]);
+units("tbsp", ["tbsp", "tbsps", "tbs", "tablespoon", "tablespoons", "spoon", "spoons", "el", "esslöffel", "essloeffel", "löffel"]);
+units("tsp", ["tsp", "tsps", "teaspoon", "teaspoons", "tl", "teelöffel", "teeloeffel"]);
+units("cup", ["cup", "cups", "mug", "mugs", "tasse", "tassen", "becher"]);
+units("slice", ["slice", "slices", "scheibe", "scheiben"]);
+units("piece", ["piece", "pieces", "pcs", "pc", "stück", "stueck", "stk"]);
+units("bowl", ["bowl", "bowls", "schüssel", "schale"]);
+units("plate", ["plate", "plates", "teller"]);
+units("glass", ["glass", "glasses", "glas", "gläser"]);
+units("can", ["can", "cans", "dose", "bottle", "bottles", "flasche"]);
+units("serving", ["serving", "servings", "portion", "portions", "portionen"]);
+units("handful", ["handful", "handfuls", "handvoll"]);
+units("scoop", ["scoop", "scoops"]);
+units("stick", ["stick", "sticks", "spiesse", "spieße"]);
+units("bar", ["bar", "bars", "riegel"]);
+units("set", ["set", "sets"]);
+units("x", ["x"]);
 
-// Words for portions → ignored, the number in front counts
-const PORTION_UNITS = [
-  "x", "set", "sets", "slice", "slices", "scheibe", "scheiben", "piece", "pieces", "pcs", "pc",
-  "stück", "stueck", "stk", "cup", "cups", "tasse", "tassen", "bowl", "bowls",
-  "schüssel", "schale", "plate", "plates", "teller", "glass", "glasses", "glas",
-  "gläser", "can", "cans", "dose", "bottle", "flasche", "tbsp", "el", "tsp", "tl",
-  "serving", "servings", "portion", "portionen", "handful", "handvoll", "scoop",
-  "scoops", "stick", "sticks", "spiesse", "spieße", "bar", "bars", "riegel",
-];
+// Units we can convert: weight in grams, volume in millilitres
+const WEIGHT_G = { g: 1, kg: 1000 };
+const VOLUME_ML = { tbsp: 15, tsp: 5, cup: 240, ml: 1, l: 1000 };
 
 // Size words multiply the portion
 const SIZE_WORDS = {
@@ -129,25 +144,49 @@ function parseNumber(word) {
   return isNaN(n) ? null : n;
 }
 
-// Read the amount from the words in front of a food (from right to left).
+// Read the amount from the words in front of a food (from right to left):
+// "4 tablespoons of", "200 g", "half a cup of", "2 large"
 function readAmount(words) {
-  let count = null, grams = null, size = 1, isGrams = false;
+  let count = null, unit = null, size = 1;
   for (let k = words.length - 1; k >= 0; k--) {
     const w = words[k];
-    if (GRAM_UNITS.includes(w)) { isGrams = true; continue; }
-    if (PORTION_UNITS.includes(w)) continue;
+    if (w in UNITS) { if (!unit) unit = UNITS[w]; continue; }
     if (w in SIZE_WORDS) { size *= SIZE_WORDS[w]; continue; }
     if (w === "of" || w === "von") continue;
     const n = parseNumber(w);
     if (n !== null) {
-      if (isGrams && grams === null) grams = n;
-      else if (count === null) count = n;
-      else count *= n;              // "half a" → 0.5 × 1
+      count = count === null ? n : count * n;   // "half a" → 0.5 × 1
       continue;
     }
     break;                          // any other word ends the amount
   }
-  return { count, grams, size };
+  return { count, unit, size };
+}
+
+// How much of the food's standard portion is this amount?
+// Returns { factor, label }
+function portionFactor(f, amount) {
+  const count = amount.count ?? 1;
+  const unit = amount.unit;
+
+  // Weight: "200 g chicken"
+  if (unit in WEIGHT_G) {
+    const grams = count * WEIGHT_G[unit];
+    return { factor: grams / f.grams, label: `${formatQty(grams)} g` };
+  }
+  // Volume: "4 tbsp oats" → millilitres → grams (oats are lighter than yogurt).
+  // If the food's own portion is that unit (e.g. "1 cup kopi"), count portions instead.
+  if (unit in VOLUME_ML && unit !== f.portion) {
+    const ml = count * VOLUME_ML[unit];
+    const grams = ml * (f.density || 1);
+    const label = unit === "ml" || unit === "l"
+      ? `${formatQty(ml)} ml`
+      : `${formatQty(count)} ${unit} (≈${Math.round(grams)} g)`;
+    return { factor: grams / f.grams, label };
+  }
+  // Portions: "2 slices bread", "large latte", "egg prata x2"
+  const factor = count * amount.size;
+  return { factor, label: `${formatQty(factor)} ${f.portion}` };
 }
 
 // Main function: returns { items, unknown, kcal, protein }
@@ -176,15 +215,7 @@ function estimateFood(text) {
     // Words in front that weren't part of the amount → unknown
     collectUnknown(before, unknown);
 
-    let factor;
-    let label;
-    if (amount.grams !== null) {
-      factor = amount.grams / f.grams;
-      label = `${amount.grams} g`;
-    } else {
-      factor = (amount.count ?? 1) * amount.size;
-      label = `${formatQty(factor)} ${f.portion}`;
-    }
+    const { factor, label } = portionFactor(f, amount);
 
     items.push({
       name: f.name,
@@ -208,8 +239,7 @@ function estimateFood(text) {
 
 function collectUnknown(words, unknown) {
   for (const w of words) {
-    const isAmountWord = parseNumber(w) !== null || GRAM_UNITS.includes(w) ||
-      PORTION_UNITS.includes(w) || w in SIZE_WORDS;
+    const isAmountWord = parseNumber(w) !== null || w in UNITS || w in SIZE_WORDS;
     if (!isAmountWord && !FILLER_WORDS.has(w) && w.length > 2) unknown.push(w);
   }
 }
